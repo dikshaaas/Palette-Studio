@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Settings — Palette Studio{% endblock %}
+
+{% block content %}
+
+<div class="settings-page">
+  <header class="page-header">
+    <h1 class="page-title">Settings</h1>
+    <p class="page-subtitle">Configure workspace preferences and extraction defaults.</p>
+  </header>
+
+  {% if success %}
+  <div class="alert" style="background: #f3ebe4; border-color: #e0c8b4; color: #6a4a38;" role="alert">
+    {{ success }}
+  </div>
+  {% endif %}
+
+  <div class="card settings-panel">
+    <form method="POST" action="/settings">
+
+      <div class="controls-row" style="margin: 0 0 1.75rem;">
+        <div class="slider-group">
+          <label for="n_colors_default">
+            Default colors to extract
+            <span id="slider-val" class="percent-val">{{ settings.get('n_colors_default', 6) }}</span>
+          </label>
+          <input
+            type="range"
+            id="n-colors"
+            name="n_colors_default"
+            min="3"
+            max="10"
+            value="{{ settings.get('n_colors_default', 6) }}"
+          />
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.75rem; border-top: 1px solid var(--border); padding-top: 1.25rem;">
+        <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; gap: 1rem;">
+          <div>
+            <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-main);">Auto-save generated palettes</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Automatically save new extractions to your library</div>
+          </div>
+          <input
+            type="checkbox"
+            name="auto_save"
+            value="true"
+            {{ 'checked' if settings.get('auto_save', True) else '' }}
+            style="width: 18px; height: 18px; accent-color: var(--accent);"
+          />
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1.5rem;">
+        Save settings
+      </button>
+    </form>
+
+    <div style="border-top: 1px solid var(--border); padding-top: 1.25rem;">
+      <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.25rem;">Clear palette history</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Permanently remove all saved palettes from your library.</div>
+
+      <button id="clear-history-btn" class="btn btn-danger" style="width: 100%;">
+        Clear palette history
+      </button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

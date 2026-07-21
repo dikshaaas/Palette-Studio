@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% from "macros/icons.html" import icon_close %}
+
+{% block title %}Extract Palette — Palette Studio{% endblock %}
+
+{% block content %}
+
+<div class="page-intro">
+  <h1>Extract palette</h1>
+  <p>Drop a photo and we’ll distill its quiet color story.</p>
+</div>
+
+{% if error %}
+<div class="alert" role="alert">{{ error }}</div>
+{% endif %}
+
+<div class="upload-card-wrapper">
+  <form id="upload-form" method="POST" action="/upload" enctype="multipart/form-data">
+
+    <div
+      id="upload-zone"
+      class="drop-photo-box"
+      role="button"
+      tabindex="0"
+      aria-label="Click or drag a photo here to extract colors"
+    >
+      <div class="drop-photo-text">Drop your photo here</div>
+      <p class="drop-photo-hint">or click to choose a JPG or PNG</p>
+
+      <input
+        type="file"
+        id="file-input"
+        name="image"
+        accept=".jpg,.jpeg,.png"
+        aria-label="Choose photo"
+      />
+    </div>
+
+    <div id="preview-container" aria-live="polite">
+      <img id="preview-img" src="" alt="Selected photo preview" />
+      <button id="remove-preview" type="button" aria-label="Remove photo">{{ icon_close() }}</button>
+    </div>
+
+    <div class="form-controls-grid">
+      <div class="form-group">
+        <label for="folder-select">Organize into folder</label>
+        <select id="folder-select" name="folder" class="select-input">
+          {% for f in folders %}
+          <option value="{{ f }}">{{ f }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="n-colors">
+          Colors to extract: <span id="slider-val" class="percent-val">{{ settings.get('n_colors_default', 6) }}</span>
+        </label>
+        <input
+          type="range"
+          id="n-colors"
+          name="n_colors"
+          min="3"
+          max="10"
+          value="{{ settings.get('n_colors_default', 6) }}"
+          style="margin-top: 8px;"
+        />
+      </div>
+    </div>
+
+    <button type="submit" id="submit-btn" class="btn btn-primary btn-submit">
+      <span class="btn-text">Extract colors</span>
+      <span class="btn-loading">
+        <span class="spinner"></span> Processing…
+      </span>
+    </button>
+
+  </form>
+</div>
+
+{% endblock %}

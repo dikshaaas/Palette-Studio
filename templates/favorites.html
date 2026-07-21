@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% from "macros/icons.html" import icon_heart %}
+
+{% block title %}Favorites — Palette Studio{% endblock %}
+
+{% block content %}
+
+<header class="page-header">
+  <h1 class="page-title">Favorites</h1>
+  <p class="page-subtitle">Your favorited palettes for quick reference.</p>
+</header>
+
+{% if palettes %}
+<div class="palette-grid">
+  {% for p in palettes %}
+  <div class="palette-card-item">
+    <button
+      class="heart-badge active"
+      data-id="{{ p.id }}"
+      title="Favorite"
+      aria-label="Favorite palette"
+      type="button"
+    >
+      {{ icon_heart() }}
+    </button>
+
+    <a href="/library/{{ p.id }}" style="text-decoration: none; color: inherit;">
+      <img src="{{ p.thumb_b64 }}" class="palette-card-img" alt="{{ p.filename }}" />
+
+      <div class="palette-card-body">
+        <div class="palette-card-title">{{ p.filename }}</div>
+        <div class="palette-card-date">{{ p.date }}</div>
+
+        <div class="swatch-bar-mini">
+          {% for c in p.colors[:6] %}
+          <span style="background-color: {{ c.hex }};" title="{{ c.name }} ({{ c.hex }})"></span>
+          {% endfor %}
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card" style="padding: 3.5rem; text-align: center; color: var(--text-muted);">
+  <div class="empty-state-icon">{{ icon_heart() }}</div>
+  <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main);">No favorites yet</p>
+  <p style="font-size: 0.88rem; margin-bottom: 1.5rem;">Click the heart on any palette in your library to save it here.</p>
+  <a href="/library" class="btn btn-secondary">Explore library</a>
+</div>
+{% endif %}
+
+{% endblock %}

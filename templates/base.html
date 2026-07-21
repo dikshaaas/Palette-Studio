@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ 'dark' if settings.get('dark_mode') else 'light' }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Palette Studio{% endblock %}</title>
+  <meta name="description" content="Extract calm color stories from your photos, or generate soft random harmonies." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,450;9..144,500&family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%23c47a5a'/></svg>" />
+</head>
+<body>
+
+  <header class="top-navbar" role="banner">
+    <div class="nav-container">
+      <a href="/" class="nav-logo" aria-label="Palette Studio Home">
+        <span class="logo-mark" aria-hidden="true"></span>
+        <span class="logo-text">Palette Studio</span>
+      </a>
+
+      <nav class="nav-links" role="navigation" aria-label="Main Navigation">
+        <a href="/" class="nav-link {{ 'active' if active_page == 'home' else '' }}">Home</a>
+        <a href="/extract" class="nav-link {{ 'active' if active_page == 'extract' else '' }}">Extract</a>
+        <a href="/library" class="nav-link {{ 'active' if active_page == 'library' else '' }}">Library</a>
+        <a href="/favorites" class="nav-link {{ 'active' if active_page == 'favorites' else '' }}">Favourites</a>
+        <a href="/settings" class="nav-link {{ 'active' if active_page == 'settings' else '' }}">Settings</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button id="theme-toggle" class="theme-toggle-icon" title="Toggle theme" aria-label="Toggle theme">
+          <span id="theme-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+          </span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content" role="main">
+    {% block content_wrapper %}
+    <div class="content-wrapper{% if active_page == 'home' %} content-wrapper--flush{% endif %}">
+      {% block content %}{% endblock %}
+    </div>
+    {% endblock %}
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-container">
+      <p>Palette Studio — soft color, quietly made</p>
+    </div>
+  </footer>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

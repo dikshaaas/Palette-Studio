@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% from "macros/icons.html" import icon_heart, icon_copy %}
+
+{% block title %}{{ palette.filename }} Details — Palette Studio{% endblock %}
+
+{% block content %}
+
+<header class="result-header">
+  <div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.25rem; flex-wrap: wrap;">
+      <a href="/library" style="text-decoration: none; color: var(--text-muted); font-size: 0.9rem;">← Library</a>
+      <span style="color: var(--text-light);">/</span>
+      <h1 class="result-title" style="font-size: 1.5rem;">{{ palette.filename }}</h1>
+    </div>
+    <p class="page-subtitle">Saved on {{ palette.date }} · {{ palette.colors|length }} dominant colors</p>
+  </div>
+
+  <div class="result-actions">
+    <button
+      class="btn btn-secondary fav-btn {{ 'active' if palette.get('is_favorite') else '' }}"
+      data-id="{{ palette.id }}"
+    >
+      {{ icon_heart() }} Favorite
+    </button>
+    <a href="/download/png/{{ palette.id }}" class="btn btn-primary">Download PNG</a>
+    <a href="/download/json/{{ palette.id }}" class="btn btn-secondary">Export JSON</a>
+  </div>
+</header>
+
+<div class="result-grid">
+
+  <aside class="card image-card">
+    <img src="{{ palette.thumb_b64 }}" alt="{{ palette.filename }}" />
+    <div class="image-meta">
+      <div class="meta-row"><span>File Name</span><span>{{ palette.filename }}</span></div>
+      <div class="meta-row"><span>Resolution</span><span>{{ palette.orig_size[0] }} × {{ palette.orig_size[1] }} px</span></div>
+      <div class="meta-row"><span>Date</span><span>{{ palette.date }}</span></div>
+      <div class="meta-row"><span>Colors</span><span>{{ palette.colors|length }}</span></div>
+    </div>
+
+    <div style="margin: 0 1.15rem 1.25rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+      <button id="delete-palette-btn" class="btn btn-danger" data-id="{{ palette.id }}" style="width: 100%;">
+        Delete palette
+      </button>
+    </div>
+  </aside>
+
+  <section class="card palette-card">
+    <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 1rem;">
+      Dominant color swatches
+    </div>
+
+    <div class="swatch-strip">
+      {% for c in palette.colors %}
+      <div class="swatch-strip-seg" style="background-color: {{ c.hex }};" data-percent="{{ c.percent }}" title="{{ c.name }}: {{ c.hex }}"></div>
+      {% endfor %}
+    </div>
+
+    <div class="swatch-list">
+      {% for c in palette.colors %}
+      <div class="swatch-row" data-hex="{{ c.hex }}">
+        <div class="swatch-box" style="background-color: {{ c.hex }};"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">{{ c.name }}</div>
+          <div class="swatch-codes">
+            <span class="hex-val">{{ c.hex }}</span>
+            <span class="rgb-val">RGB({{ c.rgb[0] }}, {{ c.rgb[1] }}, {{ c.rgb[2] }})</span>
+          </div>
+        </div>
+        <div class="swatch-metrics">
+          <div class="swatch-pct percent-val">{{ c.percent }}%</div>
+          <div class="pct-bar-bg"><div class="pct-bar-fg" style="background-color: {{ c.hex }};" data-percent="{{ c.percent }}"></div></div>
+        </div>
+        <button class="copy-icon-btn" data-hex="{{ c.hex }}" title="Copy HEX" type="button">{{ icon_copy() }}</button>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+</div>
+
+<section class="card" style="margin-top: 2rem; padding: 1.5rem;">
+  <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 1rem;">Export code</div>
+  <div class="export-tabs" style="display: flex; gap: 10px; margin-bottom: 1rem;">
+    <button class="tab-btn active" data-target="css-code">CSS Variables</button>
+    <button class="tab-btn" data-target="tailwind-code">Tailwind Config</button>
+  </div>
+  <pre id="code-output" class="code-box">{{ css_vars }}</pre>
+  <div id="css-code" style="display:none;">{{ css_vars }}</div>
+  <div id="tailwind-code" style="display:none;">{{ tailwind }}</div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% from "macros/icons.html" import icon_heart %}
+
+{% block title %}Palette Studio{% endblock %}
+
+{% block content %}
+
+<section class="home-hero" aria-labelledby="brand-title">
+  <div class="home-hero__atmosphere" aria-hidden="true">
+    <div class="home-hero__sky"></div>
+    <span class="home-hero__wash home-hero__wash--1"></span>
+    <span class="home-hero__wash home-hero__wash--2"></span>
+    <span class="home-hero__wash home-hero__wash--3"></span>
+    <div class="home-hero__horizon"></div>
+  </div>
+
+  <div class="home-hero__inner">
+    <h1 class="home-hero__brand" id="brand-title">Palette Studio</h1>
+    <p class="home-hero__headline">Warm color stories, drawn from light.</p>
+    <p class="home-hero__lede">
+      Extract soft palettes from your photos, or let a sunset harmony compose itself.
+    </p>
+
+    <div class="home-hero__actions">
+      <a href="/extract" class="btn btn-primary btn-lg">
+        Start extracting
+      </a>
+      <a href="/generate-random" class="btn btn-ghost btn-lg" id="random-palette-btn">
+        Generate random palette
+      </a>
+    </div>
+
+    <div class="home-hero__palette" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+  </div>
+
+  {% if recent_palettes %}
+  <p class="home-hero__scroll" aria-hidden="true">Recent work below</p>
+  {% endif %}
+</section>
+
+{% if recent_palettes %}
+<section class="page-section" aria-label="Recent Palettes" id="recent">
+  <div class="section-head">
+    <h2 class="section-title">Recent palettes</h2>
+    <a href="/library" class="section-link">View library →</a>
+  </div>
+
+  <div class="palette-grid">
+    {% for p in recent_palettes %}
+    <div class="palette-card-item">
+      <button
+        class="heart-badge {{ 'active' if p.get('is_favorite') else '' }}"
+        data-id="{{ p.id }}"
+        title="Favorite"
+        aria-label="Favorite palette"
+        type="button"
+      >
+        {{ icon_heart() }}
+      </button>
+
+      <a href="/result/{{ p.id }}" style="text-decoration: none; color: inherit;">
+        <img src="{{ p.thumb_b64 }}" class="palette-card-img" alt="{{ p.filename }}" />
+
+        <div class="palette-card-body">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+            <div class="palette-card-title">{{ p.filename }}</div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span class="folder-badge">{{ p.get('folder', 'Personal Inspiration') }}</span>
+            <span class="palette-card-date">{{ p.date }}</span>
+          </div>
+
+          <div class="swatch-bar-mini">
+            {% for c in p.colors[:6] %}
+            <span style="background-color: {{ c.hex }};" title="{{ c.name }} ({{ c.hex }})"></span>
+            {% endfor %}
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

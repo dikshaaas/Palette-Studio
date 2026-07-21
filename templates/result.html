@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% from "macros/icons.html" import icon_heart, icon_copy %}
+
+{% block title %}{{ palette.filename }} — Palette Studio{% endblock %}
+
+{% block content %}
+
+<header class="result-header">
+  <div>
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.35rem; flex-wrap: wrap;">
+      <h1 class="result-title">{{ palette.filename }}</h1>
+      <span class="folder-badge">{{ palette.get('folder', 'Personal Inspiration') }}</span>
+    </div>
+    <p style="font-size: 0.88rem; color: var(--text-muted);">
+      {% if palette.get('is_random') %}
+      Composed {{ palette.colors|length }} colors on {{ palette.date }}
+      {% else %}
+      Extracted {{ palette.colors|length }} colors on {{ palette.date }}
+      {% endif %}
+    </p>
+  </div>
+
+  <div class="result-actions">
+    <button id="copy-all-btn" class="btn btn-secondary">Copy all</button>
+
+    <button
+      class="btn btn-secondary fav-btn {{ 'active' if palette.get('is_favorite') else '' }}"
+      data-id="{{ palette.id }}"
+    >
+      {{ icon_heart() }} Favorite
+    </button>
+
+    <a href="/download/png/{{ palette.id }}" class="btn btn-primary">Download PNG</a>
+    <a href="/download/json/{{ palette.id }}" class="btn btn-secondary">JSON</a>
+  </div>
+</header>
+
+<div class="result-grid">
+
+  <aside class="card image-card">
+    <img src="{{ palette.thumb_b64 }}" alt="{{ palette.filename }}" />
+
+    <div class="image-meta">
+      <div class="meta-row">
+        <span>File Name</span>
+        <span style="max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ palette.filename }}</span>
+      </div>
+      <div class="meta-row">
+        <span>Folder</span>
+        <span>{{ palette.get('folder', 'Personal Inspiration') }}</span>
+      </div>
+      <div class="meta-row">
+        <span>Resolution</span>
+        <span class="code-val">{{ palette.orig_size[0] }} × {{ palette.orig_size[1] }} px</span>
+      </div>
+      <div class="meta-row">
+        <span>Date</span>
+        <span>{{ palette.date }}</span>
+      </div>
+      <div class="meta-row">
+        <span>Color Count</span>
+        <span class="code-val">{{ palette.colors|length }}</span>
+      </div>
+    </div>
+
+    <div style="margin: 0 1.15rem 1.25rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+      <button id="delete-palette-btn" class="btn btn-danger" data-id="{{ palette.id }}" style="width: 100%;">
+        Delete palette
+      </button>
+    </div>
+  </aside>
+
+  <section class="card palette-card">
+    <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 1rem;">
+      Dominant color palette
+    </div>
+
+    <div class="swatch-strip">
+      {% for c in palette.colors %}
+      <div
+        class="swatch-strip-seg"
+        style="background-color: {{ c.hex }};"
+        data-percent="{{ c.percent }}"
+        title="{{ c.name }}: {{ c.hex }} ({{ c.percent }}%)"
+      ></div>
+      {% endfor %}
+    </div>
+
+    <div class="swatch-list">
+      {% for c in palette.colors %}
+      <div class="swatch-row" data-hex="{{ c.hex }}">
+        <div class="swatch-box" style="background-color: {{ c.hex }};"></div>
+
+        <div class="swatch-info">
+          <div class="swatch-name">{{ c.name }}</div>
+          <div class="swatch-codes">
+            <span class="hex-val">{{ c.hex }}</span>
+            <span class="rgb-val">RGB({{ c.rgb[0] }}, {{ c.rgb[1] }}, {{ c.rgb[2] }})</span>
+          </div>
+        </div>
+
+        <div class="swatch-metrics">
+          <div class="swatch-pct percent-val">{{ c.percent }}%</div>
+          <div class="pct-bar-bg">
+            <div
+              class="pct-bar-fg"
+              style="background-color: {{ c.hex }};"
+              data-percent="{{ c.percent }}"
+            ></div>
+          </div>
+        </div>
+
+        <button class="copy-btn" data-hex="{{ c.hex }}" title="Copy HEX" type="button">
+          {{ icon_copy() }}
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+</div>
+
+<section style="margin-bottom: 3rem;">
+  <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 1rem;">
+    Generated variations
+  </div>
+
+  <div class="harmonies-grid">
+    <div class="card harmony-card">
+      <h4 style="margin-bottom: 0.75rem; font-size: 0.9rem;">Complementary</h4>
+      <div class="harmony-swatches">
+        {% for c in palette.harmonies.get('complementary', []) %}
+        <div class="harmony-block" style="background-color: {{ c.hex }};" data-hex="{{ c.hex }}" title="{{ c.name }} ({{ c.hex }})"></div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card harmony-card">
+      <h4 style="margin-bottom: 0.75rem; font-size: 0.9rem;">Analogous</h4>
+      <div class="harmony-swatches">
+        {% for c in palette.harmonies.get('analogous', []) %}
+        <div class="harmony-block" style="background-color: {{ c.hex }};" data-hex="{{ c.hex }}" title="{{ c.name }} ({{ c.hex }})"></div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card harmony-card">
+      <h4 style="margin-bottom: 0.75rem; font-size: 0.9rem;">Monochromatic</h4>
+      <div class="harmony-swatches">
+        {% for c in palette.harmonies.get('monochromatic', []) %}
+        <div class="harmony-block" style="background-color: {{ c.hex }};" data-hex="{{ c.hex }}" title="{{ c.name }} ({{ c.hex }})"></div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% set p_main = palette.colors[0].hex if palette.colors|length > 0 else '#3a2e28' %}
+{% set p_sec  = palette.colors[1].hex if palette.colors|length > 1 else '#7a6a60' %}
+{% set p_bg   = palette.colors[2].hex if palette.colors|length > 2 else '#fcf8f3' %}
+{% set p_acc  = palette.colors[3].hex if palette.colors|length > 3 else '#c47a5a' %}
+
+<section style="margin-bottom: 3rem;">
+  <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 1rem;">
+    Live application preview
+  </div>
+
+  <div class="mockup-wrapper" style="background: var(--bg-subtle); padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border);">
+    <div class="mockup-card" style="background-color: {{ p_bg }}; color: {{ p_main }}; border: 1px solid {{ p_sec }}33; padding: 1.5rem; border-radius: var(--radius-md);">
+
+      <div class="mockup-nav" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid {{ p_sec }}33; margin-bottom: 1.5rem;">
+        <div style="font-weight: 700; font-size: 1.1rem; color: {{ p_main }};">Acme Studio</div>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-secondary" style="font-size: 0.8rem; padding: 4px 12px; color: {{ p_main }}; border-color: {{ p_sec }}66; background: transparent;">Sign In</button>
+          <button class="btn btn-primary" style="font-size: 0.8rem; padding: 4px 12px; background-color: {{ p_main }}; color: {{ p_bg }}; border: none;">Get Started</button>
+        </div>
+      </div>
+
+      <div class="mockup-hero" style="text-align: center; max-width: 440px; margin: 0 auto; padding: 1.5rem 0;">
+        <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 0.5rem; color: {{ p_main }};">Designed with extracted colors</h2>
+        <p style="font-size: 0.88rem; margin-bottom: 1.25rem; color: {{ p_sec }};">
+          Visualize how your photo colors map to real UI elements, buttons, and backgrounds.
+        </p>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+          <button class="btn btn-primary" style="background-color: {{ p_acc if palette.colors|length > 3 else p_main }}; color: #ffffff; border: none;">Primary CTA</button>
+          <button class="btn btn-secondary" style="color: {{ p_main }}; border-color: {{ p_sec }}66; background: transparent;">Secondary</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="card" style="padding: 1.5rem; margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <div style="font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">
+      Code export
+    </div>
+    <button id="copy-code-btn" class="btn btn-secondary" style="padding: 4px 12px; font-size: 0.78rem;">
+      {{ icon_copy() }} Copy snippet
+    </button>
+  </div>
+
+  <div class="export-tabs" style="display: flex; gap: 10px; border-bottom: 1px solid var(--border); margin-bottom: 1rem;">
+    <button class="tab-btn active" data-target="css-code">CSS Variables</button>
+    <button class="tab-btn" data-target="tailwind-code">Tailwind Config</button>
+  </div>
+
+  <pre id="code-output" class="code-box code-val">{{ css_vars }}</pre>
+
+  <div id="css-code" style="display:none;">{{ css_vars }}</div>
+  <div id="tailwind-code" style="display:none;">{{ tailwind }}</div>
+</section>
+
+{% endblock %}

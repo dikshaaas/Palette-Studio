@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% from "macros/icons.html" import icon_heart, icon_search %}
+
+{% block title %}Palette Library — Palette Studio{% endblock %}
+
+{% block content %}
+
+<header class="page-header">
+  <h1 class="page-title">Palette Library</h1>
+  <p class="page-subtitle">Your personal collection of extracted color palettes.</p>
+</header>
+
+<div class="gallery-toolbar">
+  <form method="GET" action="/library" style="display: flex; gap: 10px; flex: 1; flex-wrap: wrap;">
+
+    <div class="search-box">
+      {{ icon_search() }}
+      <input
+        type="text"
+        name="q"
+        placeholder="Search by image name, color name, or HEX..."
+        value="{{ query }}"
+      />
+    </div>
+
+    <div class="filter-group">
+      <select name="sort" class="select-input" onchange="this.form.submit()">
+        <option value="newest" {{ 'selected' if sort == 'newest' else '' }}>Sort: Newest</option>
+        <option value="oldest" {{ 'selected' if sort == 'oldest' else '' }}>Sort: Oldest</option>
+      </select>
+
+      <label class="btn btn-secondary fav-check" style="font-size: 0.85rem; padding: 6px 12px; cursor: pointer;">
+        <input
+          type="checkbox"
+          name="favorites"
+          value="true"
+          {{ 'checked' if fav_only else '' }}
+          onchange="this.form.submit()"
+          style="accent-color: var(--accent);"
+        />
+        {{ icon_heart() }}
+        <span>Favorites only</span>
+      </label>
+    </div>
+
+  </form>
+</div>
+
+{% if palettes %}
+<div class="palette-grid">
+  {% for p in palettes %}
+  <div class="palette-card-item">
+    <button
+      class="heart-badge {{ 'active' if p.get('is_favorite') else '' }}"
+      data-id="{{ p.id }}"
+      title="Favorite"
+      aria-label="Favorite palette"
+      type="button"
+    >
+      {{ icon_heart() }}
+    </button>
+
+    <a href="/library/{{ p.id }}" style="text-decoration: none; color: inherit;">
+      <img src="{{ p.thumb_b64 }}" class="palette-card-img" alt="{{ p.filename }}" />
+
+      <div class="palette-card-body">
+        <div class="palette-card-title">{{ p.filename }}</div>
+        <div class="palette-card-date">{{ p.date }}</div>
+
+        <div class="swatch-bar-mini">
+          {% for c in p.colors[:6] %}
+          <span style="background-color: {{ c.hex }};" title="{{ c.name }} ({{ c.hex }})"></span>
+          {% endfor %}
+        </div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card" style="padding: 3rem; text-align: center; color: var(--text-muted);">
+  <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main);">No palettes found</p>
+  <p style="font-size: 0.88rem; margin-bottom: 1.5rem;">Try adjusting your search query or upload a new image.</p>
+  <a href="/extract" class="btn btn-primary">Extract new palette</a>
+</div>
+{% endif %}
+
+{% endblock %}
